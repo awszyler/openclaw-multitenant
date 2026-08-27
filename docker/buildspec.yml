@@ -1,0 +1,28 @@
+version: 0.2
+
+# OpenClaw Application Image Build — CodeBuild buildspec
+# Builds: openclaw-base:<base-tag> + skills/entrypoint → openclaw-<group>:<tag>
+# Environment variables set by scripts/build.sh app:
+#   ECR_REPO_URI    — full ECR repository URI for the application image
+#   BASE_IMAGE_URI  — full ECR URI of openclaw-base (same account/region)
+#   SKILL_GROUP     — skill group to build (default: general)
+#   IMAGE_TAG       — image tag (default: latest)
+
+phases:
+  pre_build:
+    commands:
+      - echo "=== Pre-build phase ==="
+      - echo "Region $AWS_DEFAULT_REGION | App $ECR_REPO_URI | Base $BASE_IMAGE_URI | Skill $SKILL_GROUP | Tag $IMAGE_TAG"
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $(echo $ECR_REPO_URI | cut -d/ -f1)
+      - docker pull $BASE_IMAGE_URI
+  build:
+    commands:
+      - echo "=== Build phase ==="
+      - docker build --build-arg BASE_IMAGE=$BASE_IMAGE_URI --build-arg SKILL_GROUP=${SKILL_GROUP:-general} -t $ECR_REPO_URI:$IMAGE_TAG -t $ECR_REPO_URI:build-$CODEBUILD_BUILD_NUMBER -f Dockerfile .
+  post_build:
+    commands:
+      - echo "=== Push phase ==="
+      - docker push $ECR_REPO_URI:$IMAGE_TAG
+      - docker push $ECR_REPO_URI:build-$CODEBUILD_BUILD_NUMBER
+      - echo "Image pushed $ECR_REPO_URI:$IMAGE_TAG"
+      - echo "Image pushed $ECR_REPO_URI:build-$CODEBUILD_BUILD_NUMBER"

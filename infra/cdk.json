@@ -1,0 +1,9 @@
+{
+  "app": "npx ts-node --prefer-ts-exts bin/app.ts",
+  "context": {
+    "stage": "dev",
+    "region": "ap-northeast-2",
+    "skillGroups": "general"
+  },
+  "//": "litellmEndpoint 不在这里配置默认值，避免把真实端点提交进仓库。部署时用 -c litellmEndpoint=https://your-endpoint 传入；未传入时 proxy-stack 回退到 http://litellm.internal:4000"
+}

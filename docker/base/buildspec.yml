@@ -1,0 +1,23 @@
+version: 0.2
+
+# OpenClaw Base Image Build — CodeBuild buildspec
+# Builds ghcr.io/openclaw/openclaw + wecom plugin → openclaw-base:<tag>
+# Run this only when the OpenClaw base image or wecom plugin changes.
+# Application images (openclaw-general, etc.) build FROM this in seconds.
+
+phases:
+  pre_build:
+    commands:
+      - echo "=== Pre-build phase ==="
+      - echo "Region $AWS_DEFAULT_REGION | Repo $ECR_REPO_URI | Tag $IMAGE_TAG"
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $(echo $ECR_REPO_URI | cut -d/ -f1)
+  build:
+    commands:
+      - echo "=== Build phase ==="
+      - docker build -t $ECR_REPO_URI:$IMAGE_TAG -t $ECR_REPO_URI:build-$CODEBUILD_BUILD_NUMBER -f Dockerfile .
+  post_build:
+    commands:
+      - echo "=== Push phase ==="
+      - docker push $ECR_REPO_URI:$IMAGE_TAG
+      - docker push $ECR_REPO_URI:build-$CODEBUILD_BUILD_NUMBER
+      - echo "Image pushed $ECR_REPO_URI:$IMAGE_TAG"

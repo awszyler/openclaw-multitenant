@@ -1,0 +1,30 @@
+{
+  "name": "openclaw-auth-service",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "esbuild src/server.ts --bundle --platform=node --target=node20 --outdir=dist --format=cjs --packages=external",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.800.0",
+    "@aws-sdk/client-secrets-manager": "^3.800.0",
+    "@aws-sdk/lib-dynamodb": "^3.800.0",
+    "bcrypt": "^6.0.0",
+    "fastify": "^5.3.3",
+    "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.1.0",
+    "ulid": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.25.0",
+    "fast-check": "^4.7.0",
+    "typescript": "^5.6.0",
+    "vitest": "^4.1.4"
+  }
+}
